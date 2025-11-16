@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAWC Security Report</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --high-color: #dc3545;
+            --medium-color: #ffc107;
+            --low-color: #17a2b8;
+            --success-color: #28a745;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #1a1a1a;
+                --bg-secondary: #2d2d2d;
+                --text-primary: #e9ecef;
+                --text-secondary: #adb5bd;
+                --border-color: #495057;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .summary-card {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--border-color);
+        }
+
+        .summary-card.high { border-left-color: var(--high-color); }
+        .summary-card.medium { border-left-color: var(--medium-color); }
+        .summary-card.low { border-left-color: var(--low-color); }
+
+        .summary-card h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .pillar-section {
+            margin: 3rem 0;
+        }
+
+        .pillar-header {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px 8px 0 0;
+            border-left: 4px solid #007bff;
+        }
+
+        .pillar-header h2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .pillar-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .findings-list {
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .finding {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .finding:last-child {
+            border-bottom: none;
+        }
+
+        .finding-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .severity-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .severity-badge.high {
+            background: var(--high-color);
+            color: white;
+        }
+
+        .severity-badge.medium {
+            background: var(--medium-color);
+            color: #000;
+        }
+
+        .severity-badge.low {
+            background: var(--low-color);
+            color: white;
+        }
+
+        .finding-title {
+            flex: 1;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .finding-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .finding-description {
+            margin-bottom: 1rem;
+        }
+
+        .remediation {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .remediation h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .remediation pre {
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        details {
+            margin-top: 1rem;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        summary:hover {
+            opacity: 0.8;
+        }
+
+        .evidence {
+            margin-top: 0.5rem;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ WAWC Security Report</h1>
+            <p class="subtitle">Well-Architected Watchdog CLI - Security Assessment</p>
+        </header>
+
+        <section class="summary">
+            <h2>Executive Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-card high">
+                    <h3>High Severity</h3>
+                    <div class="value">{{ severity_counts.high }}</div>
+                </div>
+                <div class="summary-card medium">
+                    <h3>Medium Severity</h3>
+                    <div class="value">{{ severity_counts.medium }}</div>
+                </div>
+                <div class="summary-card low">
+                    <h3>Low Severity</h3>
+                    <div class="value">{{ severity_counts.low }}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Findings</h3>
+                    <div class="value">{{ result.findings|length }}</div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <h3>Regions Scanned</h3>
+                    <div class="value" style="font-size: 1.2rem;">{{ result.regions_scanned|join(', ') }}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Checks Run</h3>
+                    <div class="value" style="font-size: 1.2rem;">{{ result.checks_run|join(', ')|upper }}</div>
+                </div>
+            </div>
+        </section>
+
+        {% for pillar, findings in pillar_findings.items() %}
+        <section class="pillar-section">
+            <div class="pillar-header">
+                <h2>{{ pillar }} Pillar</h2>
+                <p class="pillar-description">
+                    {{ pillar_summary[pillar].description }}
+                    ({{ pillar_summary[pillar].total }} findings:
+                    {{ pillar_summary[pillar].high }} high,
+                    {{ pillar_summary[pillar].medium }} medium,
+                    {{ pillar_summary[pillar].low }} low)
+                </p>
+            </div>
+
+            <div class="findings-list">
+                {% for finding in findings %}
+                <div class="finding">
+                    <div class="finding-header">
+                        <span class="severity-badge {{ finding.severity.lower() }}">{{ finding.severity }}</span>
+                        <div class="finding-title">{{ finding.title }}</div>
+                    </div>
+
+                    <div class="finding-meta">
+                        <span><strong>Service:</strong> {{ finding.service.upper() }}</span>
+                        <span><strong>Region:</strong> {{ finding.region }}</span>
+                        <span><strong>Resource:</strong> {{ finding.resource_id }}</span>
+                    </div>
+
+                    <div class="finding-description">
+                        {{ finding.description }}
+                    </div>
+
+                    <div class="remediation">
+                        <h4>Remediation Steps</h4>
+                        <pre>{{ finding.remediation }}</pre>
+                    </div>
+
+                    <details>
+                        <summary>View Evidence</summary>
+                        <div class="evidence">{{ finding.evidence|tojson(indent=2) }}</div>
+                    </details>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+
+        <footer>
+            <p>Generated by WAWC (Well-Architected Watchdog CLI) v1.0.0</p>
+            <p>Report generated at {{ result.findings[0].evidence.get('timestamp', 'N/A') if result.findings else 'N/A' }}</p>
+        </footer>
+    </div>
+</body>
+</html>

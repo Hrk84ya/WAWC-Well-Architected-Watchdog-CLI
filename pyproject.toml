@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wawc"
+version = "1.0.0"
+description = "Well-Architected Watchdog CLI - AWS misconfiguration scanner"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Hrk84ya", email = "hrk84ya@github.com"}
+]
+keywords = ["aws", "security", "compliance", "well-architected", "devops"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "boto3>=1.28.0",
+    "click>=8.1.0",
+    "pydantic>=2.0.0",
+    "jinja2>=3.1.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+pro = [
+    "playwright>=1.40.0",
+]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.11.0",
+    "mypy>=1.5.0",
+    "ruff>=0.1.0",
+    "boto3-stubs[s3,ec2,rds]>=1.28.0",
+]
+
+[project.scripts]
+wawc = "wawc.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Hrk84ya/WAWC-Well-Architected-Watchdog-CLI"
+Documentation = "https://github.com/Hrk84ya/WAWC-Well-Architected-Watchdog-CLI#readme"
+Repository = "https://github.com/Hrk84ya/WAWC-Well-Architected-Watchdog-CLI"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "botocore.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=wawc --cov-report=term-missing"

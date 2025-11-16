@@ -1,0 +1,124 @@
+{
+  "summary": {
+    "total_findings": 4,
+    "regions_scanned": ["us-east-1"],
+    "checks_run": ["s3", "sg", "rds"],
+    "severity_counts": {
+      "high": 2,
+      "medium": 1,
+      "low": 1
+    }
+  },
+  "findings": [
+    {
+      "id": "s3-public-my-public-bucket",
+      "service": "s3",
+      "resource_id": "my-public-bucket",
+      "region": "us-east-1",
+      "severity": "HIGH",
+      "title": "Public S3 Bucket: my-public-bucket",
+      "description": "Bucket 'my-public-bucket' is publicly accessible. Reasons: Public Access Block not configured, ACL grants to AllUsers",
+      "evidence": {
+        "bucket_name": "my-public-bucket",
+        "public_access_block": "Not configured",
+        "acl_grants": [
+          {
+            "Grantee": {
+              "Type": "Group",
+              "URI": "http://acs.amazonaws.com/groups/global/AllUsers"
+            },
+            "Permission": "READ"
+          }
+        ],
+        "policy_public": false,
+        "reasons": [
+          "Public Access Block not configured",
+          "ACL grants to AllUsers"
+        ]
+      },
+      "remediation": "1. Enable S3 Block Public Access at account level\n2. Enable Block Public Access for this bucket:\n   aws s3api put-public-access-block --bucket my-public-bucket --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true\n3. Review and remove public ACL grants\n4. Review bucket policy for public access statements",
+      "wa_pillars": ["Security"],
+      "tags": {
+        "check": "s3-public-bucket"
+      }
+    },
+    {
+      "id": "sg-open-sg-0123456789abcdef0-22-22-tcp",
+      "service": "ec2",
+      "resource_id": "sg-0123456789abcdef0",
+      "region": "us-east-1",
+      "severity": "HIGH",
+      "title": "Open Security Group: sg-0123456789abcdef0 (web-server-sg)",
+      "description": "Security group 'web-server-sg' (sg-0123456789abcdef0) in VPC vpc-12345678 allows IPv4 traffic from 0.0.0.0/0 on TCP protocol, ports 22. HIGH RISK: SSH (port 22)",
+      "evidence": {
+        "security_group_id": "sg-0123456789abcdef0",
+        "security_group_name": "web-server-sg",
+        "vpc_id": "vpc-12345678",
+        "cidr": "0.0.0.0/0",
+        "ip_version": "IPv4",
+        "protocol": "tcp",
+        "from_port": 22,
+        "to_port": 22,
+        "permission": {
+          "IpProtocol": "tcp",
+          "FromPort": 22,
+          "ToPort": 22,
+          "IpRanges": [{"CidrIp": "0.0.0.0/0"}]
+        }
+      },
+      "remediation": "1. Review the security group rule allowing 0.0.0.0/0:\n   aws ec2 describe-security-groups --group-ids sg-0123456789abcdef0 --region us-east-1\n2. Restrict the CIDR to known IP ranges:\n   aws ec2 revoke-security-group-ingress --group-id sg-0123456789abcdef0 --protocol tcp --port 22 --cidr 0.0.0.0/0\n3. Add specific CIDR ranges:\n   aws ec2 authorize-security-group-ingress --group-id sg-0123456789abcdef0 --protocol tcp --port 22 --cidr <YOUR_CIDR>\n4. Consider using AWS Systems Manager Session Manager instead of direct SSH/RDP",
+      "wa_pillars": ["Security"],
+      "tags": {
+        "check": "sg-open-rule",
+        "vpc_id": "vpc-12345678"
+      }
+    },
+    {
+      "id": "rds-no-backup-production-db",
+      "service": "rds",
+      "resource_id": "production-db",
+      "region": "us-east-1",
+      "severity": "HIGH",
+      "title": "RDS Backups Disabled: production-db",
+      "description": "RDS instance 'production-db' has automated backups disabled (BackupRetentionPeriod = 0). This poses a significant risk to data durability and recovery capabilities.",
+      "evidence": {
+        "db_instance_id": "production-db",
+        "backup_retention_period": 0,
+        "preferred_backup_window": "",
+        "multi_az": false,
+        "engine": "postgres",
+        "instance_class": "db.t3.medium"
+      },
+      "remediation": "1. Enable automated backups with appropriate retention:\n   aws rds modify-db-instance --db-instance-identifier production-db --backup-retention-period 7 --preferred-backup-window 03:00-04:00 --region us-east-1\n2. Verify backup configuration:\n   aws rds describe-db-instances --db-instance-identifier production-db\n3. Consider enabling Multi-AZ for production databases\n4. Test restore procedures regularly",
+      "wa_pillars": ["Reliability", "Operational Excellence"],
+      "tags": {
+        "check": "rds-backup-disabled",
+        "engine": "postgres"
+      }
+    },
+    {
+      "id": "rds-single-az-production-db",
+      "service": "rds",
+      "resource_id": "production-db",
+      "region": "us-east-1",
+      "severity": "LOW",
+      "title": "RDS Single-AZ Deployment: production-db",
+      "description": "RDS instance 'production-db' is deployed in a single Availability Zone. For production workloads, consider Multi-AZ deployment for automatic failover and higher availability.",
+      "evidence": {
+        "db_instance_id": "production-db",
+        "backup_retention_period": 0,
+        "preferred_backup_window": "",
+        "multi_az": false,
+        "engine": "postgres",
+        "instance_class": "db.t3.medium"
+      },
+      "remediation": "1. Enable Multi-AZ deployment (requires downtime):\n   aws rds modify-db-instance --db-instance-identifier production-db --multi-az --region us-east-1\n2. Note: This will cause a brief outage during conversion\n3. Multi-AZ provides automatic failover in ~60-120 seconds\n4. Consider cost implications (roughly 2x instance cost)",
+      "wa_pillars": ["Reliability"],
+      "tags": {
+        "check": "rds-single-az",
+        "engine": "postgres"
+      }
+    }
+  ],
+  "errors": []
+}
