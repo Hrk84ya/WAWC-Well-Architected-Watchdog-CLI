@@ -2,7 +2,6 @@
 
 A production-ready Python CLI tool that scans AWS accounts for common misconfigurations and security issues, aligned with the AWS Well-Architected Framework.
 
-[![CI](https://github.com/Hrk84ya/WAWC-Well-Architected-Watchdog-CLI/workflows/CI/badge.svg)](https://github.com/Hrk84ya/WAWC-Well-Architected-Watchdog-CLI/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -340,18 +339,6 @@ Pro features require a separate commercial license.
 
 - 📖 [Documentation](https://github.com/Hrk84ya/WAWC-Well-Architected-Watchdog-CLI#readme)
 - 🐛 [Issue Tracker](https://github.com/Hrk84ya/WAWC-Well-Architected-Watchdog-CLI/issues)
-- 💬 [Discussions](https://github.com/Hrk84ya/WAWC-Well-Architected-Watchdog-CLI/discussions)
-
-## Roadmap
-
-- [ ] Lambda function checks (unused functions, excessive permissions)
-- [ ] CloudTrail logging verification
-- [ ] EBS encryption checks
-- [ ] IAM policy analysis
-- [ ] Cost optimization recommendations
-- [ ] Custom check plugins
-- [ ] Slack/Teams notifications
-- [ ] Scheduled scanning with AWS Lambda
 
 ---
 
